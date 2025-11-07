@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheelchair Bot Controller</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🦽 Wheelchair Bot Controller</h1>
+            <div class="connection-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">Disconnected</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="video-section">
+                <div class="video-container">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-overlay" id="videoOverlay">
+                        <p>No video stream</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="control-section">
+                <div class="connection-controls">
+                    <div class="input-group">
+                        <label for="serverUrl">Server URL:</label>
+                        <input type="text" id="serverUrl" placeholder="ws://localhost:8080" value="ws://localhost:8080">
+                    </div>
+                    <button id="connectBtn" class="btn btn-primary">Connect</button>
+                    <button id="disconnectBtn" class="btn btn-secondary" disabled>Disconnect</button>
+                </div>
+
+                <div class="movement-controls">
+                    <h2>Movement Controls</h2>
+                    <div class="control-grid">
+                        <div class="control-row">
+                            <button class="control-btn" id="btn-forward" data-direction="forward">
+                                <span class="arrow">▲</span>
+                                <span class="label">Forward</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="btn-left" data-direction="left">
+                                <span class="arrow">◄</span>
+                                <span class="label">Left</span>
+                            </button>
+                            <button class="control-btn" id="btn-stop" data-direction="stop">
+                                <span class="arrow">■</span>
+                                <span class="label">Stop</span>
+                            </button>
+                            <button class="control-btn" id="btn-right" data-direction="right">
+                                <span class="arrow">►</span>
+                                <span class="label">Right</span>
+                            </button>
+                        </div>
+                        <div class="control-row">
+                            <button class="control-btn" id="btn-backward" data-direction="backward">
+                                <span class="arrow">▼</span>
+                                <span class="label">Backward</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="speed-control">
+                    <label for="speedSlider">Speed:</label>
+                    <input type="range" id="speedSlider" min="0" max="100" value="50">
+                    <span id="speedValue">50%</span>
+                </div>
+
+                <div class="info-panel">
+                    <h3>Connection Info</h3>
+                    <div class="info-item">
+                        <span class="info-label">ICE Connection:</span>
+                        <span id="iceState">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Signaling:</span>
+                        <span id="signalingState">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Data Channel:</span>
+                        <span id="dataChannelState">-</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>WebRTC Wheelchair Bot Controller v1.0</p>
+        </footer>
+    </div>
+
+    <script src="webrtc.js"></script>
+    <script src="controller.js"></script>
+</body>
+</html>
