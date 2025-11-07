@@ -1,8 +1,6 @@
 """Tests for the main API endpoints."""
 
-import pytest
 from fastapi.testclient import TestClient
-
 from wheelchair_bot.main import app
 
 client = TestClient(app)

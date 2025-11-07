@@ -52,17 +52,17 @@ async def get_status():
 async def move(direction: str, speed: int = 50):
     """
     Send a movement command to the wheelchair bot.
-    
+
     Args:
         direction: Direction to move (forward, backward, left, right, stop)
         speed: Speed percentage (0-100)
     """
     if direction not in ["forward", "backward", "left", "right", "stop"]:
         return {"error": "Invalid direction"}
-    
+
     if not 0 <= speed <= 100:
         return {"error": "Speed must be between 0 and 100"}
-    
+
     return {
         "status": "success",
         "command": direction,
@@ -72,4 +72,5 @@ async def move(direction: str, speed: int = 50):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
