@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2024 Wheelchair-Bot Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+SAFETY DISCLAIMER:
+
+This software controls physical hardware that may pose safety risks. Users of
+this software are solely responsible for:
+
+1. Ensuring the system is properly installed and tested
+2. Implementing appropriate safety measures and emergency stops
+3. Complying with all applicable laws and regulations
+4. Supervising operation at all times
+5. Maintaining the hardware in safe working condition
+
+THE AUTHORS AND CONTRIBUTORS ASSUME NO LIABILITY FOR ANY ACCIDENTS, INJURIES,
+OR DAMAGES ARISING FROM THE USE OF THIS SOFTWARE. USE AT YOUR OWN RISK.
