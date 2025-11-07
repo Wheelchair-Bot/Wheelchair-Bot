@@ -137,13 +137,31 @@ Edit `config/default_config.json` to customize:
 
 ## Development
 
-### Running Tests
+### Running Unit Tests
+
+Run the test suite:
+
+```bash
+python3 -m unittest tests.test_controller -v
+```
+
+All tests use mock GPIO, so they can be run on any system without Raspberry Pi hardware.
+
+### Manual Testing
+
+Test the controller interactively:
 
 ```bash
 python3 main.py --mock --verbose
 ```
 
-This runs the controller in mock mode with verbose logging for testing.
+Or run the demo script:
+
+```bash
+python3 demo.py
+```
+
+These run the controller in mock mode with verbose logging for testing.
 
 ### Adding New Control Methods
 
