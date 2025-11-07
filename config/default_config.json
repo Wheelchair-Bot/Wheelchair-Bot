@@ -1,0 +1,24 @@
+{
+  "motor_driver": {
+    "left_motor": {
+      "forward_pin": 17,
+      "backward_pin": 18,
+      "enable_pin": 12
+    },
+    "right_motor": {
+      "forward_pin": 22,
+      "backward_pin": 23,
+      "enable_pin": 13
+    }
+  },
+  "controller": {
+    "max_speed": 80,
+    "turn_speed": 60,
+    "acceleration_rate": 10
+  },
+  "safety": {
+    "enable_timeout": true,
+    "timeout_seconds": 1.0,
+    "emergency_stop_enabled": true
+  }
+}

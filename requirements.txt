@@ -1,0 +1,10 @@
+# Raspberry Pi GPIO library (only needed on actual Raspberry Pi hardware)
+# Uncomment the following line when running on Raspberry Pi:
+# RPi.GPIO>=0.7.1
+
+# Optional: For enhanced keyboard control
+# keyboard>=0.13.5
+
+# Development dependencies (optional)
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
