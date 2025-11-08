@@ -68,9 +68,28 @@ def main():
 
     result2 = subprocess.run(cmd2, cwd=project_root, env=env)
 
+    # Run package tests
     print()
     print("=" * 70)
-    if result1.returncode == 0 and result2.returncode == 0:
+    print("Running package tests")
+    print("=" * 70)
+    print()
+
+    cmd3 = [
+        sys.executable,
+        "-m",
+        "pytest",
+        "packages/shared/tests/",
+        "packages/backend/tests/",
+        "-v",
+        "--tb=short",
+    ]
+
+    result3 = subprocess.run(cmd3, cwd=project_root, env=env)
+
+    print()
+    print("=" * 70)
+    if result1.returncode == 0 and result2.returncode == 0 and result3.returncode == 0:
         print("✓ All tests passed!")
         returncode = 0
     else:
