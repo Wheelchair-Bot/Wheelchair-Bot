@@ -1,25 +1,150 @@
-# Wheelchair-Bot
+# Wheelchair-Bot - Universal Tele-Robotics Kit
 
-A Raspberry Pi-based controller application for wheelchair robots with motor control, keyboard interface, and safety features.
+A lightweight, universal tele-robotics kit that turns almost any powered wheelchair into a remotely driven robot using commodity parts, an Android phone and/or a Raspberry Pi, and a camera—all accessed through a secure web interface.
+
+## Overview
+
+Wheelchair-Bot is designed as a modular, service-based system that requires minimal hardware and avoids heavy frameworks like ROS. It provides a complete solution for remote wheelchair control with real-time video streaming, responsive controls, and comprehensive safety features.
 
 ## Features
 
-- **Motor Control**: Differential drive motor control using GPIO pins
-- **Keyboard Interface**: Simple keyboard control for testing and operation
-- **Safety Features**: Emergency stop and speed limiting
-- **Mock Mode**: Test without Raspberry Pi hardware
-- **PWM Speed Control**: Smooth speed control using PWM
-- **Configurable**: JSON-based configuration for easy customization
+- **Universal Compatibility**: Works with most powered wheelchairs using commodity hardware
+- **Lightweight Stack**: No ROS dependency - uses FastAPI, WebSockets, and WebRTC
+- **Multiple Platform Support**: Run on Raspberry Pi, Android devices, or standard computers
+- **Real-Time Video/Audio**: WebRTC-based streaming with low latency
+- **Secure Web Access**: Control from any modern web browser
+- **Safety-First Design**: Built-in E-stop, deadman switch, and speed limiting
+- **Network Resilient**: Supports both LTE and Wi-Fi connectivity
+- **Modular Architecture**: Easy to customize and extend
+
+## System Architecture
+
+The system consists of five core services that work together:
+
+### Services
+
+1. **teleopd** - Teleoperations daemon (Python FastAPI)
+   - WebSocket server for real-time control commands
+   - REST API for configuration and status
+   - Handles motor control interface
+   - Service endpoint: `http://localhost:8000`
+
+2. **webrtc** - Video and audio streaming
+   - WebRTC peer connection management
+   - Real-time video from camera to web client
+   - Bidirectional audio support
+   - Low-latency streaming
+
+3. **streamer** - Camera capture service
+   - Uses libcamera (Raspberry Pi) or GStreamer (general)
+   - Configurable resolution and framerate
+   - H.264 encoding for efficient streaming
+   - Supports USB and CSI cameras
+
+4. **safety-agent** - Safety monitoring service
+   - Emergency stop (E-stop) monitoring
+   - Deadman switch enforcement
+   - Speed and acceleration limiting
+   - Watchdog for all critical services
+
+5. **net-agent** - Network management service
+   - LTE and Wi-Fi connectivity management
+   - Dynamic DNS for remote access
+   - VPN/secure tunnel setup
+   - Connection quality monitoring
+
+### Control Interface
+
+- **Web Client** - Browser-based control interface
+  - Virtual joystick for precise control
+  - Real-time video display
+  - Status monitoring
+  - Works on desktop and mobile
+  - No app installation required
 
 ## Hardware Requirements
 
-- Raspberry Pi (any model with GPIO pins)
-- Motor driver board (L298N, L293D, or similar)
-- Two DC motors for differential drive
-- Power supply appropriate for your motors
-- (Optional) Motor encoders for feedback
+### Minimum Requirements
+- **Computing Platform** (choose one or more):
+  - Raspberry Pi 4 (2GB+ RAM recommended)
+  - Raspberry Pi 3B+
+  - Android phone/tablet (for camera and compute)
+  - Any Linux-capable computer
+  
+- **Camera**:
+  - Raspberry Pi Camera Module v2/v3 (CSI interface)
+  - USB webcam (UVC compatible)
+  - Android device camera
 
-## GPIO Pin Configuration
+- **Wheelchair Interface**:
+  - Motor driver board (L298N, L293D, or similar)
+  - OR direct interface to wheelchair's control system
+  - Power supply appropriate for your motors
+
+- **Network** (choose one):
+  - Wi-Fi dongle or built-in Wi-Fi
+  - 4G/LTE USB modem or built-in cellular
+  - Ethernet connection
+
+### Optional Components
+- GPS module for location tracking
+- IMU for motion sensing
+- Motor encoders for odometry
+- Battery monitoring system
+- External speakers for audio feedback
+
+## Installation
+
+### Quick Start
+
+For the fastest setup, see [QUICKSTART.md](QUICKSTART.md).
+
+### Detailed Installation
+
+#### 1. Clone the Repository
+
+```bash
+git clone https://github.com/mrhegemon/Wheelchair-Bot.git
+cd Wheelchair-Bot
+```
+
+#### 2. Install Dependencies
+
+**On Raspberry Pi:**
+```bash
+# Install system packages
+sudo apt-get update
+sudo apt-get install -y python3-pip libcamera-apps gstreamer1.0-tools
+
+# Install Python dependencies
+pip3 install -r requirements.txt
+```
+
+**On other Linux systems:**
+```bash
+# Install GStreamer
+sudo apt-get install -y gstreamer1.0-tools gstreamer1.0-plugins-good
+
+# Install Python dependencies
+pip3 install -r requirements.txt
+```
+
+**For development:**
+```bash
+# Install with development tools
+pip3 install -e ".[dev]"
+```
+
+#### 3. Configure Services
+
+Edit configuration files in the `config/` directory:
+
+- `teleopd.json` - Teleoperations service settings
+- `safety.json` - Safety parameters and limits
+- `network.json` - Network and security settings
+- `camera.json` - Camera and streaming configuration
+
+#### 4. GPIO Pin Configuration (Raspberry Pi)
 
 Default GPIO pin assignments (BCM mode):
 
@@ -31,52 +156,71 @@ Default GPIO pin assignments (BCM mode):
 | Right Motor Forward | 22 |
 | Right Motor Backward | 23 |
 | Right Motor Enable (PWM) | 13 |
+| E-Stop Input | 27 |
 
-These can be customized in `config/default_config.json`.
-
-## Installation
-
-### On Raspberry Pi
-
-1. Clone the repository:
-```bash
-git clone https://github.com/mrhegemon/Wheelchair-Bot.git
-cd Wheelchair-Bot
-```
-
-2. Install dependencies:
-```bash
-pip3 install -r requirements.txt
-```
-
-Note: Uncomment `RPi.GPIO` in `requirements.txt` when installing on actual Raspberry Pi hardware.
-
-### For Development/Testing (without Raspberry Pi)
-
-```bash
-git clone https://github.com/mrhegemon/Wheelchair-Bot.git
-cd Wheelchair-Bot
-```
-
-No additional dependencies required for mock mode.
+Customize pin assignments in `config/default_config.json`.
 
 ## Usage
 
-### Basic Usage
+### Starting the System
 
-Run the controller with mock GPIO (for testing without hardware):
+#### Option 1: Start All Services (Production)
 
 ```bash
+# Start all services using the main launcher
+python3 main.py
+```
+
+This starts:
+- teleopd (control server)
+- webrtc (video/audio streaming)
+- streamer (camera capture)
+- safety-agent (safety monitoring)
+- net-agent (network management)
+
+#### Option 2: Start Individual Services (Development)
+
+```bash
+# Terminal 1: Start teleopd
+python3 -m wheelchair_bot.services.teleopd
+
+# Terminal 2: Start video streamer
+python3 -m wheelchair_bot.services.streamer
+
+# Terminal 3: Start safety agent
+python3 -m wheelchair_bot.services.safety_agent
+
+# Terminal 4: Start network agent (if needed)
+python3 -m wheelchair_bot.services.net_agent
+```
+
+#### Option 3: Mock Mode (Testing without Hardware)
+
+```bash
+# Run with mock GPIO and camera
 python3 main.py --mock
 ```
 
-Run on actual Raspberry Pi hardware:
+### Web Interface
 
-```bash
-sudo python3 main.py
-```
+Once the services are running:
 
-Note: `sudo` is required for GPIO access on Raspberry Pi.
+1. Open a web browser on any device
+2. Navigate to: `http://<raspberry-pi-ip>:8080` or `http://localhost:8080` (local)
+3. The control interface will load automatically
+4. Click "Connect" to establish WebRTC connection
+5. Use the virtual joystick or keyboard to control the wheelchair
+
+### Keyboard Controls
+
+When using the web interface:
+
+- **W** or **↑** - Move Forward
+- **S** or **↓** - Move Backward
+- **A** or **←** - Turn Left
+- **D** or **→** - Turn Right
+- **Space** or **Esc** - Stop (E-Stop)
+- **+/-** - Adjust Speed
 
 ### Command Line Options
 
@@ -84,284 +228,542 @@ Note: `sudo` is required for GPIO access on Raspberry Pi.
 python3 main.py [OPTIONS]
 
 Options:
-  --mock              Use mock GPIO (for testing without Raspberry Pi)
+  --mock              Use mock GPIO and camera (for testing)
+  --config FILE       Configuration file (default: config/default_config.json)
   --max-speed SPEED   Maximum speed percentage (0-100, default: 80)
-  --turn-speed SPEED  Turn speed percentage (0-100, default: 60)
+  --port PORT         Web server port (default: 8080)
+  --camera DEVICE     Camera device (default: auto-detect)
+  --no-video          Disable video streaming
   --verbose, -v       Enable verbose logging
-  -h, --help          Show help message
+  --help, -h          Show help message
 ```
-
-### Keyboard Controls
-
-Once running, use these keys to control the wheelchair:
-
-- **W** - Move Forward
-- **S** - Move Backward
-- **A** - Turn Left
-- **D** - Turn Right
-- **Space** - Stop
-- **Q** - Quit
 
 ## Project Structure
 
 ```
 Wheelchair-Bot/
-├── wheelchair_controller/      # Main controller package
-│   ├── __init__.py            # Package initialization
-│   ├── controller.py          # Main wheelchair controller
-│   ├── motor_driver.py        # Motor driver interface
-│   └── keyboard_control.py    # Keyboard control interface
-├── config/                    # Configuration files
-│   └── default_config.json    # Default configuration
-├── tests/                     # Test files (future)
-├── main.py                    # Main entry point
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
+├── wheelchair_bot/              # Main package
+│   ├── services/                # Service implementations
+│   │   ├── teleopd.py          # Teleoperations daemon
+│   │   ├── streamer.py         # Camera streaming service
+│   │   ├── safety_agent.py     # Safety monitoring
+│   │   └── net_agent.py        # Network management
+│   ├── controllers/             # Input controllers
+│   │   ├── joystick.py         # Virtual joystick
+│   │   └── gamepad.py          # Physical gamepad
+│   ├── motors/                  # Motor control
+│   │   ├── differential.py     # Differential drive
+│   │   └── base.py             # Motor interface
+│   ├── safety/                  # Safety features
+│   │   ├── deadman.py          # Deadman switch
+│   │   └── limiter.py          # Speed/acceleration limits
+│   └── wheelchairs/             # Wheelchair models
+│       └── models.py            # Wheelchair configurations
+├── packages/
+│   ├── backend/                 # FastAPI backend (teleopd)
+│   ├── frontend/                # React web UI (optional)
+│   └── shared/                  # Shared utilities
+├── config/                      # Configuration files
+│   ├── default_config.json     # Main configuration
+│   ├── teleopd.json            # Teleopd settings
+│   ├── safety.json             # Safety parameters
+│   └── network.json            # Network settings
+├── web/                         # Web client (HTML/JS/CSS)
+│   ├── index.html              # Main UI
+│   ├── webrtc.js               # WebRTC handling
+│   ├── controller.js           # Control logic
+│   └── styles.css              # Styling
+├── docs/                        # Documentation
+│   ├── architecture.md         # System architecture
+│   ├── api.md                  # API reference
+│   └── getting-started.md      # Setup guide
+├── tests/                       # Test suite
+├── main.py                      # Main entry point
+├── requirements.txt             # Python dependencies
+└── README.md                    # This file
 ```
 
 ## Configuration
 
-Edit `config/default_config.json` to customize:
+### Service Configuration
 
+Each service can be configured via JSON files in the `config/` directory:
+
+#### teleopd.json
+```json
+{
+  "host": "0.0.0.0",
+  "port": 8000,
+  "websocket_port": 8080,
+  "max_clients": 5,
+  "command_timeout": 1.0
+}
+```
+
+#### safety.json
+```json
+{
+  "max_speed": 0.8,
+  "max_angular_speed": 0.8,
+  "deadman_timeout": 0.5,
+  "estop_enabled": true,
+  "speed_limit_enabled": true
+}
+```
+
+#### camera.json
+```json
+{
+  "device": "/dev/video0",
+  "width": 1280,
+  "height": 720,
+  "framerate": 30,
+  "codec": "h264",
+  "backend": "libcamera"
+}
+```
+
+#### network.json
+```json
+{
+  "interfaces": ["wlan0", "eth0", "usb0"],
+  "ddns_enabled": true,
+  "ddns_hostname": "mychair.local",
+  "vpn_enabled": false
+}
+```
+
+### GPIO Configuration
+
+Edit `config/default_config.json` to customize:
 - GPIO pin assignments
-- Speed limits
-- Safety features
 - Motor parameters
+- Safety thresholds
+- PWM frequencies
 
 ## Safety Features
 
-- **Speed Limiting**: Maximum speed can be configured
-- **Emergency Stop**: Immediate halt capability
-- **Input Validation**: All speed values are clamped to safe ranges
-- **Graceful Shutdown**: Proper cleanup of GPIO resources
+The system includes multiple layers of safety:
+
+### Hardware Safety
+- **E-Stop Button**: Physical emergency stop (GPIO input)
+- **Deadman Switch**: Requires continuous operator input
+- **Watchdog Timer**: Automatic shutdown if service fails
+
+### Software Safety
+- **Speed Limiting**: Configurable maximum speeds
+- **Acceleration Limiting**: Prevents sudden movements
+- **Command Timeout**: Stops if no commands received
+- **Input Validation**: All commands validated before execution
+
+### Network Safety
+- **Secure WebSocket**: WSS encryption for commands
+- **Authentication**: Optional password/token protection
+- **Rate Limiting**: Prevents command flooding
+- **Connection Monitoring**: Detects and handles disconnections
+
+### Safety Override
+```bash
+# Activate emergency stop from command line
+python3 -m wheelchair_bot.safety.estop --trigger
+
+# Reset after E-stop
+python3 -m wheelchair_bot.safety.estop --reset
+```
 
 ## Development
 
-### Running Unit Tests
+### Running Tests
 
-Run the test suite:
+Run the complete test suite:
 
 ```bash
-python3 -m unittest tests.test_controller -v
+# All tests
+python3 -m pytest tests/ -v
+
+# Unit tests only
+python3 -m unittest discover -s tests -v
+
+# Integration tests
+python3 -m pytest tests/test_integration.py -v
+
+# With coverage
+python3 -m pytest --cov=wheelchair_bot tests/
 ```
 
-All tests use mock GPIO, so they can be run on any system without Raspberry Pi hardware.
+### Mock Mode for Development
 
-### Manual Testing
-
-Test the controller interactively:
+Test without hardware:
 
 ```bash
+# Mock GPIO, camera, and network
 python3 main.py --mock --verbose
+
+# Mock specific components
+python3 main.py --mock-gpio --mock-camera
+
+# Run individual service in mock mode
+python3 -m wheelchair_bot.services.teleopd --mock
 ```
 
-Or run the demo script:
+### Code Quality
 
 ```bash
-python3 demo.py
+# Format code
+black wheelchair_bot/ tests/
+
+# Lint code
+ruff check wheelchair_bot/ tests/
+
+# Type checking
+mypy wheelchair_bot/
 ```
 
-These run the controller in mock mode with verbose logging for testing.
+### Building Documentation
 
-### Adding New Control Methods
+```bash
+# Generate API documentation
+python3 -m pdoc wheelchair_bot --output-dir docs/api
 
-The modular design makes it easy to add new control interfaces:
+# Build documentation site (if using mkdocs)
+mkdocs build
+```
 
-1. Create a new control class in `wheelchair_controller/`
-2. Import and initialize in `main.py`
-3. Implement your control logic using the `WheelchairController` API
+### Adding New Features
+
+The modular design makes it easy to extend:
+
+1. **New Control Interface**: Add to `wheelchair_bot/controllers/`
+2. **New Motor Type**: Implement in `wheelchair_bot/motors/`
+3. **New Safety Feature**: Add to `wheelchair_bot/safety/`
+4. **New Service**: Create in `wheelchair_bot/services/`
+
+See [docs/contributing.md](docs/contributing.md) for detailed guidelines.
+
+## Deployment
+
+### Running as a System Service
+
+Create a systemd service for automatic startup:
+
+```bash
+# Create service file
+sudo nano /etc/systemd/system/wheelchair-bot.service
+```
+
+Service file content:
+```ini
+[Unit]
+Description=Wheelchair Bot Tele-Robotics System
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Wheelchair-Bot
+ExecStart=/usr/bin/python3 /home/pi/Wheelchair-Bot/main.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start:
+```bash
+sudo systemctl enable wheelchair-bot
+sudo systemctl start wheelchair-bot
+sudo systemctl status wheelchair-bot
+```
+
+### Remote Access Setup
+
+#### Option 1: Local Network
+Access via local IP: `http://192.168.1.X:8080`
+
+#### Option 2: Dynamic DNS
+Configure in `config/network.json` for external access:
+```json
+{
+  "ddns_enabled": true,
+  "ddns_provider": "duckdns",
+  "ddns_hostname": "mychair.duckdns.org",
+  "ddns_token": "your-token-here"
+}
+```
+
+#### Option 3: VPN/Tailscale
+For secure remote access without port forwarding:
+```bash
+# Install Tailscale
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+
+# Access via Tailscale network
+```
+
+### Android Setup (Alternative Platform)
+
+Use Termux on Android as the computing platform:
+
+```bash
+# Install Termux from F-Droid
+# Inside Termux:
+pkg install python clang libusb
+pip install -r requirements.txt
+python main.py --platform android
+```
+
+### Security Best Practices
+
+1. **Change default passwords** in configuration files
+2. **Enable HTTPS** for production use
+3. **Use strong authentication** tokens
+4. **Enable firewall** rules:
+   ```bash
+   sudo ufw allow 8080/tcp  # Web interface
+   sudo ufw allow 8000/tcp  # API
+   sudo ufw enable
+   ```
+5. **Regular updates**: Keep system and dependencies updated
+6. **Monitor logs**: Check `/var/log/wheelchair-bot/` regularly
 
 ## Troubleshooting
 
-### GPIO Permission Errors
+### Common Issues
 
-Run with `sudo`:
+#### Connection Problems
+
+**Cannot connect to web interface**
+- Verify services are running: `systemctl status wheelchair-bot`
+- Check firewall settings: `sudo ufw status`
+- Confirm correct IP address and port
+- Test local access first: `http://localhost:8080`
+
+**WebRTC not connecting**
+- Check STUN/TURN server configuration
+- Verify network allows UDP traffic
+- Test with browser console open (F12) for errors
+- Ensure camera permissions are granted
+
+#### Hardware Issues
+
+**GPIO Permission Errors**
 ```bash
+# Add user to gpio group
+sudo usermod -a -G gpio $USER
+# Or run with sudo
 sudo python3 main.py
 ```
 
-### Import Errors
+**Motors not responding**
+1. Check GPIO connections and wiring
+2. Verify power supply to motors (separate from Pi)
+3. Test with multimeter for voltage
+4. Run diagnostic: `python3 -m wheelchair_bot.diagnostics.motors`
+5. Check verbose logs: `python3 main.py --verbose`
 
-Ensure you're in the correct directory:
+**Camera not detected**
 ```bash
-cd /path/to/Wheelchair-Bot
-python3 main.py
+# List camera devices
+v4l2-ctl --list-devices
+
+# Test camera
+libcamera-hello  # Raspberry Pi
+gst-launch-1.0 v4l2src ! autovideosink  # USB camera
+
+# Check permissions
+sudo usermod -a -G video $USER
 ```
 
-### Motor Not Responding
+#### Software Issues
 
-1. Check GPIO connections
-2. Verify power supply to motors
-3. Test with `--verbose` flag for detailed logging
-4. Verify pin assignments in configuration
+**Service won't start**
+```bash
+# Check logs
+journalctl -u wheelchair-bot -n 50
 
+# Run manually to see errors
+python3 main.py --verbose
 
+# Verify dependencies
+pip3 install -r requirements.txt --upgrade
+```
 
-# 🦽 Wheelchair Bot WebRTC Controller
+**High latency / lag**
+- Reduce video resolution in `config/camera.json`
+- Use wired Ethernet instead of Wi-Fi
+- Close bandwidth-heavy applications
+- Check CPU usage: `htop`
 
-A web-based controller interface for remotely operating a wheelchair bot using WebRTC technology.
+### Getting Help
 
-## Features
+1. Check the [documentation](docs/)
+2. Review [existing issues](https://github.com/mrhegemon/Wheelchair-Bot/issues)
+3. Run diagnostics: `python3 -m wheelchair_bot.diagnostics`
+4. Enable debug logging: `--verbose` flag
+5. Open a new issue with:
+   - System information (`uname -a`, `python3 --version`)
+   - Error logs
+   - Configuration (redact sensitive info)
+   - Steps to reproduce
 
-- **Real-time Video Streaming**: View live video feed from the bot's camera
-- **WebRTC Data Channel**: Low-latency control commands
-- **Responsive UI**: Works on desktop and mobile devices
-- **Multiple Control Methods**:
-  - On-screen directional buttons
-  - Keyboard controls (WASD or Arrow keys)
-  - Touch controls for mobile devices
-- **Speed Control**: Adjustable speed slider (0-100%)
-- **Connection Status**: Real-time connection state monitoring
+## Performance Tuning
 
-## Quick Start
+### Optimize Video Streaming
 
-### Opening the Controller
+```json
+// config/camera.json - Low latency preset
+{
+  "width": 640,
+  "height": 480,
+  "framerate": 24,
+  "codec": "h264",
+  "bitrate": 500000
+}
+```
 
-1. Open `index.html` in a modern web browser (Chrome, Firefox, Edge, or Safari)
-2. Enter the WebSocket server URL (default: `ws://localhost:8080`)
-3. Click "Connect" to establish connection with the bot
+### Reduce CPU Usage
 
-### Controls
+```bash
+# Use hardware encoding (Raspberry Pi)
+echo "h264_v4l2m2m" | sudo tee -a /etc/modules
 
-#### Keyboard Controls
-- **W** or **↑**: Move forward
-- **S** or **↓**: Move backward
-- **A** or **←**: Turn left
-- **D** or **→**: Turn right
-- **Space** or **Esc**: Stop
+# Limit background processes
+sudo systemctl disable bluetooth
+sudo systemctl disable cups
+```
 
-#### On-Screen Controls
-- Use the directional buttons for movement
-- Click and hold for continuous movement
-- Release to stop
+### Network Optimization
 
-#### Speed Control
-- Adjust the speed slider to set movement speed (0-100%)
+```bash
+# Increase network buffer sizes
+sudo sysctl -w net.core.rmem_max=26214400
+sudo sysctl -w net.core.wmem_max=26214400
+```
+## API Reference
 
-## Architecture
+### WebSocket API (Control Commands)
 
-### Components
+Connect to `ws://hostname:8080/ws`
 
-1. **index.html**: Main HTML structure and UI layout
-2. **styles.css**: Styling and responsive design
-3. **webrtc.js**: WebRTC connection management and signaling
-4. **controller.js**: UI event handling and control logic
-
-### WebRTC Flow
-
-1. **Connection**: Client connects to signaling server via WebSocket
-2. **Signaling**: Exchange SDP offers/answers and ICE candidates
-3. **Media Stream**: Receive video stream from bot
-4. **Data Channel**: Bidirectional control command channel
-5. **Commands**: Send movement commands in JSON format
-
-### Command Format
-
-Commands sent through the data channel:
-
+**Send movement command:**
 ```json
 {
   "type": "movement",
-  "direction": "forward|backward|left|right|stop",
+  "direction": "forward",
   "speed": 50,
   "timestamp": 1699999999999
 }
 ```
 
-## Server Requirements
+**Direction values:** `forward`, `backward`, `left`, `right`, `stop`
 
-The web controller expects a WebRTC signaling server that:
+**Send configuration:**
+```json
+{
+  "type": "config",
+  "max_speed": 0.8,
+  "acceleration_limit": 1.0
+}
+```
 
-1. Accepts WebSocket connections
-2. Handles WebRTC signaling messages (offer, answer, ICE candidates)
-3. Provides video stream from bot's camera
-4. Receives control commands via data channel
+### REST API (Status and Config)
 
-### Expected Signaling Messages
+**Get system status:**
+```bash
+GET http://hostname:8000/api/status
+```
 
-#### Client → Server
-- `offer`: WebRTC offer with SDP
-- `answer`: WebRTC answer with SDP
-- `ice-candidate`: ICE candidate for connection establishment
+Response:
+```json
+{
+  "battery_level": 85,
+  "is_moving": false,
+  "speed": 0,
+  "direction": null,
+  "services": {
+    "teleopd": "running",
+    "streamer": "running",
+    "safety_agent": "running"
+  }
+}
+```
 
-#### Server → Client
-- `answer`: WebRTC answer to client's offer
-- `ice-candidate`: ICE candidates from server
+**Get configuration:**
+```bash
+GET http://hostname:8000/api/config
+```
 
-## Browser Compatibility
+**Update configuration:**
+```bash
+POST http://hostname:8000/api/config
+Content-Type: application/json
 
-- Chrome/Edge 80+
-- Firefox 75+
-- Safari 14+
-- Opera 67+
+{
+  "max_speed": 0.8,
+  "turn_speed": 0.6
+}
+```
 
-**Note**: WebRTC requires HTTPS for production deployments (except localhost)
+**Emergency stop:**
+```bash
+POST http://hostname:8000/api/emergency-stop
+```
 
-## Development
+See [docs/api.md](docs/api.md) for complete API documentation.
 
-### Local Testing
+## Contributing
 
-1. Serve the files using any web server:
-   ```bash
-   # Python 3
-   python -m http.server 8000
-   
-   # Node.js
-   npx http-server
-   ```
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-2. Open browser to `http://localhost:8000`
+### Development Workflow
 
-### STUN Servers
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make changes and test thoroughly
+4. Run tests: `python3 -m pytest tests/ -v`
+5. Format code: `black wheelchair_bot/`
+6. Commit changes: `git commit -am "Add feature"`
+7. Push to branch: `git push origin feature/my-feature`
+8. Create Pull Request
 
-The controller uses Google's public STUN servers by default:
-- `stun:stun.l.google.com:19302`
-- `stun:stun1.l.google.com:19302`
+### Code Standards
 
-For production, consider using your own TURN servers for better reliability.
+- Follow PEP 8 style guide
+- Add docstrings to all functions/classes
+- Include type hints
+- Write tests for new features
+- Update documentation
 
-## Security Considerations
+## License
 
-- Always use HTTPS in production
-- Implement proper authentication on the signaling server
-- Validate and sanitize all control commands on the bot side
-- Consider implementing command rate limiting
-- Use secure WebSocket (WSS) for production deployments
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Customization
+## Acknowledgments
 
-### Changing Control Layout
+- Built with FastAPI, WebRTC, and modern web technologies
+- Inspired by the need for accessible, affordable robotic assistance
+- Community contributions and feedback
 
-Edit `index.html` to modify the control button layout.
+## Support
 
-### Styling
+- **Documentation**: [docs/](docs/)
+- **Issues**: [GitHub Issues](https://github.com/mrhegemon/Wheelchair-Bot/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mrhegemon/Wheelchair-Bot/discussions)
 
-Modify `styles.css` to customize colors, fonts, and layout.
+## Roadmap
 
-### Adding New Commands
+- [ ] Multi-wheelchair support (fleet management)
+- [ ] Advanced autonomous features (obstacle avoidance)
+- [ ] Voice control integration
+- [ ] Mobile app (iOS/Android native)
+- [ ] ROS2 bridge (optional)
+- [ ] Multi-camera support
+- [ ] Sensor fusion (LIDAR, ultrasonic)
+- [ ] Cloud telemetry and analytics
 
-1. Add new buttons/controls in `index.html`
-2. Add event listeners in `controller.js`
-3. Define command format and send via `webrtc.sendCommand()`
+---
 
-## Troubleshooting
-
-### Connection Issues
-
-- Verify the signaling server URL is correct
-- Check browser console for error messages
-- Ensure WebSocket server is running and accessible
-- Check firewall settings
-
-### No Video Stream
-
-- Verify the bot is sending video tracks
-- Check browser permissions for media playback
-- Look for errors in the browser console
-
-### Control Commands Not Working
-
-- Ensure data channel is open (check connection info panel)
-- Verify the bot is processing received commands
-- Check browser console for command send errors
+**Safety Notice**: This system is designed for assistive robotics and should be used responsibly. Always ensure proper safety measures, including physical E-stop, are in place. Never rely solely on software safety features. Test thoroughly in safe environments before real-world use.
 
