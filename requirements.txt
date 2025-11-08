@@ -7,7 +7,8 @@ RPi.GPIO>=0.7.1
 keyboard>=0.13.5
 
 # Development dependencies (optional)
-pytest>=7.4.0pytest-cov>=4.1.0
+pytest>=7.4.0
+pytest-cov>=4.1.0
 pylint>=3.0.0
 black>=23.0.0
 pygame>=2.0.0

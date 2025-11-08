@@ -5,6 +5,12 @@ import sys
 from pathlib import Path
 from wheelchair.config import EmulatorConfig
 from wheelchair.factory import create_emulator
+from wheelchair.realistic_factory import (
+    create_realistic_emulator,
+    create_model_emulator,
+    create_degraded_emulator,
+    WHEELCHAIR_MODELS
+)
 
 
 def print_state(state, dt):
@@ -21,7 +27,9 @@ def print_state(state, dt):
     )
 
 
-def run_emulator(config_path: str = None, duration: float = None, interactive: bool = False):
+def run_emulator(config_path: str = None, duration: float = None, interactive: bool = False,
+                realistic: bool = True, scenario: str = "default", model: str = "standard",
+                wear_factor: float = 1.0, battery_health: float = 1.0):
     """
     Run the wheelchair emulator.
 
@@ -29,6 +37,11 @@ def run_emulator(config_path: str = None, duration: float = None, interactive: b
         config_path: Path to configuration file
         duration: Duration to run (None for infinite)
         interactive: Enable interactive control
+        realistic: Use realistic physics emulator
+        scenario: Simulation scenario for realistic emulator
+        model: Wheelchair model to use
+        wear_factor: Motor wear factor (0.0-1.0)
+        battery_health: Battery health factor (0.0-1.0)
     """
     # Load configuration
     if config_path:
@@ -43,8 +56,20 @@ def run_emulator(config_path: str = None, duration: float = None, interactive: b
     else:
         config = EmulatorConfig()
 
-    # Create emulator
-    loop = create_emulator(config)
+    # Create appropriate emulator
+    if realistic:
+        if wear_factor < 1.0 or battery_health < 1.0:
+            print(f"Creating degraded emulator: wear={wear_factor:.1%}, battery={battery_health:.1%}")
+            loop = create_degraded_emulator(wear_factor, battery_health)
+        elif model != "standard":
+            print(f"Creating {model} model emulator")
+            loop = create_model_emulator(model)
+        else:
+            print(f"Creating realistic emulator with {scenario} scenario")
+            loop = create_realistic_emulator(config, scenario)
+    else:
+        print("Creating basic emulator")
+        loop = create_emulator(config)
 
     # Add state printing callback
     loop.add_callback(print_state)
@@ -71,7 +96,7 @@ def run_emulator(config_path: str = None, duration: float = None, interactive: b
 def main():
     """Main entry point for CLI."""
     parser = argparse.ArgumentParser(
-        description="Wheelchair Emulator - Test wheelchair control without hardware"
+        description="Enhanced Wheelchair Emulator - Realistic physics and sensor simulation"
     )
     parser.add_argument(
         "--config",
@@ -91,6 +116,35 @@ def main():
         action="store_true",
         help="Enable interactive control (keyboard)",
     )
+    parser.add_argument(
+        "--basic",
+        action="store_true",
+        help="Use basic emulator instead of realistic physics",
+    )
+    parser.add_argument(
+        "--scenario",
+        choices=["default", "urban", "outdoor", "testing", "extreme"],
+        default="default",
+        help="Simulation scenario for realistic emulator",
+    )
+    parser.add_argument(
+        "--model",
+        choices=list(WHEELCHAIR_MODELS.keys()),
+        default="standard", 
+        help="Wheelchair model to simulate",
+    )
+    parser.add_argument(
+        "--wear",
+        type=float,
+        default=1.0,
+        help="Motor wear factor (0.0=completely worn, 1.0=new)",
+    )
+    parser.add_argument(
+        "--battery-health",
+        type=float,
+        default=1.0,
+        help="Battery health factor (0.0=dead, 1.0=new)",
+    )
 
     args = parser.parse_args()
 
@@ -99,6 +153,11 @@ def main():
             config_path=args.config,
             duration=args.duration,
             interactive=args.interactive,
+            realistic=not args.basic,
+            scenario=args.scenario,
+            model=args.model,
+            wear_factor=args.wear,
+            battery_health=args.battery_health,
         )
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
