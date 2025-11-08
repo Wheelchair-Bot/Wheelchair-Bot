@@ -1,0 +1,84 @@
+services:
+  # Development service - for interactive development
+  dev:
+    build:
+      context: .
+      target: development
+      dockerfile: Dockerfile
+    image: wheelchair-bot:dev
+    container_name: wheelchair-bot-dev
+    volumes:
+      # Mount source code for live editing
+      - ./wheelchair_bot:/workspace/wheelchair_bot
+      - ./wheelchair_controller:/workspace/wheelchair_controller
+      - ./src:/workspace/src
+      - ./tests:/workspace/tests
+      - ./examples:/workspace/examples
+      - ./config:/workspace/config
+      - ./main.py:/workspace/main.py
+      - ./demo.py:/workspace/demo.py
+      # Preserve pip cache and installed packages
+      - pip-cache:/home/developer/.cache/pip
+    ports:
+      # API port
+      - "8000:8000"
+      # Web interface port
+      - "8080:8080"
+    environment:
+      # Development environment variables
+      - PYTHONPATH=/workspace
+      - MOCK_GPIO=1
+      - DEVELOPMENT=1
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    networks:
+      - wheelchair-net
+
+  # Testing service - for running tests
+  test:
+    build:
+      context: .
+      target: testing
+      dockerfile: Dockerfile
+    image: wheelchair-bot:test
+    container_name: wheelchair-bot-test
+    volumes:
+      # Mount source code
+      - ./wheelchair_bot:/workspace/wheelchair_bot
+      - ./wheelchair_controller:/workspace/wheelchair_controller
+      - ./src:/workspace/src
+      - ./tests:/workspace/tests
+      # Mount for coverage reports (directory only, not the file)
+      - ./htmlcov:/workspace/htmlcov
+    environment:
+      - PYTHONPATH=/workspace
+    networks:
+      - wheelchair-net
+
+  # Application service - for running the app in mock mode
+  app:
+    build:
+      context: .
+      target: production
+      dockerfile: Dockerfile
+    image: wheelchair-bot:app
+    container_name: wheelchair-bot-app
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    environment:
+      - PYTHONPATH=/workspace
+      - MOCK_GPIO=1
+    stdin_open: true
+    tty: true
+    networks:
+      - wheelchair-net
+    restart: unless-stopped
+
+networks:
+  wheelchair-net:
+    driver: bridge
+
+volumes:
+  pip-cache:

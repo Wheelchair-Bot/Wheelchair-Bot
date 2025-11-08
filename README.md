@@ -101,6 +101,29 @@ The system consists of five core services that work together:
 
 For the fastest setup, see [QUICKSTART.md](QUICKSTART.md).
 
+### Docker Development Environment (Recommended for Developers)
+
+The easiest way to get started with development is using Docker:
+
+```bash
+# Clone the repository
+git clone https://github.com/mrhegemon/Wheelchair-Bot.git
+cd Wheelchair-Bot
+
+# Build and run tests
+make docker-build
+make docker-test
+
+# Start interactive development container
+make docker-dev
+make docker-shell
+
+# Inside the container, run the application in mock mode
+python main.py --mock --verbose
+```
+
+See [DOCKER.md](DOCKER.md) for complete Docker documentation.
+
 ### Detailed Installation
 
 #### 1. Clone the Repository
