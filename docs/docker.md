@@ -337,9 +337,9 @@ Note: Docker containers cannot access GPIO pins or camera hardware directly. For
 
 ## Next Steps
 
-- Read the main [README.md](README.md) for project overview
-- Check [QUICKSTART.md](QUICKSTART.md) for setup instructions
-- Review [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines
+- Read the main [README.md](../README.md) for project overview
+- Check [QUICKSTART.md](../QUICKSTART.md) for setup instructions
+- Review [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines
 
 ## Additional Resources
 

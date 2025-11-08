@@ -25,7 +25,7 @@ Wheelchair-Bot is designed as a modular, service-based system that requires mini
 
 ## System Architecture
 
-The system consists of five core services that work together:
+The system consists of five core services that work together. For a detailed architecture overview, see [docs/architecture.md](docs/architecture.md).
 
 ### Services
 
@@ -99,11 +99,13 @@ The system consists of five core services that work together:
 - Battery monitoring system
 - External speakers for audio feedback
 
+For detailed wheelchair model compatibility and controller interface information, see [docs/wheelchair-support.md](docs/wheelchair-support.md).
+
 ## Installation
 
 ### Quick Start
 
-For the fastest setup, see [QUICKSTART.md](QUICKSTART.md).
+For the fastest setup, see [QUICKSTART.md](QUICKSTART.md). For a comprehensive getting started guide, see [docs/getting-started.md](docs/getting-started.md).
 
 ### Docker Development Environment (Recommended for Developers)
 
@@ -126,7 +128,7 @@ make docker-shell
 python main.py --mock --verbose
 ```
 
-See [DOCKER.md](DOCKER.md) for complete Docker documentation.
+See [docs/docker.md](docs/docker.md) for complete Docker documentation.
 
 ### Detailed Installation
 
@@ -190,6 +192,8 @@ Default GPIO pin assignments (BCM mode):
 Customize pin assignments in `config/default_config.json`.
 
 ## Usage
+
+For detailed usage instructions and control methods, see [docs/usage.md](docs/usage.md).
 
 ### Starting the System
 
@@ -289,9 +293,9 @@ Wheelchair-Bot/
 │   └── wheelchairs/             # Wheelchair models
 │       └── models.py            # Wheelchair configurations
 ├── packages/
-│   ├── backend/                 # FastAPI backend (teleopd)
-│   ├── frontend/                # React web UI (optional)
-│   └── shared/                  # Shared utilities
+│   ├── backend/                 # FastAPI backend (teleopd) - see packages/backend/README.md
+│   ├── frontend/                # React web UI (optional) - see packages/frontend/README.md
+│   └── shared/                  # Shared utilities - see packages/shared/README.md
 ├── config/                      # Configuration files
 │   ├── default_config.json     # Main configuration
 │   ├── teleopd.json            # Teleopd settings
@@ -303,14 +307,26 @@ Wheelchair-Bot/
 │   ├── controller.js           # Control logic
 │   └── styles.css              # Styling
 ├── docs/                        # Documentation
-│   ├── architecture.md         # System architecture
 │   ├── api.md                  # API reference
-│   └── getting-started.md      # Setup guide
-├── tests/                       # Test suite
+│   ├── architecture.md         # System architecture
+│   ├── docker.md               # Docker setup guide
+│   ├── emulator.md             # Testing framework
+│   ├── getting-started.md      # Setup guide
+│   ├── usage.md                # Usage instructions
+│   └── wheelchair-support.md   # Hardware compatibility
+├── tests/                       # Test suite - see tests/README.md
 ├── main.py                      # Main entry point
 ├── requirements.txt             # Python dependencies
+├── QUICKSTART.md                # Quick start guide
+├── CONTRIBUTING.md              # Contribution guidelines
 └── README.md                    # This file
 ```
+
+**For more details on specific packages:**
+- Backend package: [packages/backend/README.md](packages/backend/README.md)
+- Frontend package: [packages/frontend/README.md](packages/frontend/README.md)
+- Shared utilities: [packages/shared/README.md](packages/shared/README.md)
+- Test suite: [tests/README.md](tests/README.md)
 
 ## Configuration
 
@@ -435,6 +451,8 @@ python3 main.py --mock-gpio --mock-camera
 python3 -m wheelchair_bot.services.teleopd --mock
 ```
 
+For the complete emulator testing framework, see [docs/emulator.md](docs/emulator.md).
+
 ### Code Quality
 
 ```bash
@@ -467,7 +485,7 @@ The modular design makes it easy to extend:
 3. **New Safety Feature**: Add to `wheelchair_bot/safety/`
 4. **New Service**: Create in `wheelchair_bot/services/`
 
-See [docs/contributing.md](docs/contributing.md) for detailed guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Deployment
 
@@ -533,6 +551,8 @@ sudo tailscale up
 
 ### Android Setup (Alternative Platform)
 
+#### Android as Computing Platform
+
 Use Termux on Android as the computing platform:
 
 ```bash
@@ -542,6 +562,13 @@ pkg install python clang libusb
 pip install -r requirements.txt
 python main.py --platform android
 ```
+
+#### Android Controller App
+
+For the Android remote control application, see:
+- [android-controller/README.md](android-controller/README.md) - Full documentation
+- [android-controller/QUICKSTART.md](android-controller/QUICKSTART.md) - Quick start guide
+- [android-controller/IMPLEMENTATION.md](android-controller/IMPLEMENTATION.md) - Implementation details
 
 ### Security Best Practices
 
