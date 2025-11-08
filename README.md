@@ -2,6 +2,10 @@
 
 A lightweight, universal tele-robotics kit that turns almost any powered wheelchair into a remotely driven robot using commodity parts, an Android phone and/or a Raspberry Pi, and a camera—all accessed through a secure web interface.
 
+Extended Docs:
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mrhegemon/Wheelchair-Bot)
+
 <img width="1547" height="838" alt="Screenshot 2025-11-07 at 5 30 06 PM" src="https://github.com/user-attachments/assets/8a9a2082-dc61-4b63-ac50-d87a09e03687" />
 
 ## Overview
