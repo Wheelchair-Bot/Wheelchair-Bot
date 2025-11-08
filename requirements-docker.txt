@@ -1,0 +1,11 @@
+# Core dependencies for Docker development environment
+# Excludes hardware-specific and GUI packages that won't work in containers
+
+# Development dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pylint>=3.0.0
+black>=23.0.0
+
+# Note: RPi.GPIO, keyboard, and pygame are excluded as they require hardware/GUI
+# The application should use mock GPIO when running in Docker
