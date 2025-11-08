@@ -99,7 +99,7 @@ The system consists of five core services that work together. For a detailed arc
 - Battery monitoring system
 - External speakers for audio feedback
 
-For detailed wheelchair model compatibility and controller interface information, see [WHEELCHAIR_SUPPORT.md](WHEELCHAIR_SUPPORT.md).
+For detailed wheelchair model compatibility and controller interface information, see [docs/wheelchair-support.md](docs/wheelchair-support.md).
 
 ## Installation
 
@@ -128,7 +128,7 @@ make docker-shell
 python main.py --mock --verbose
 ```
 
-See [DOCKER.md](DOCKER.md) for complete Docker documentation.
+See [docs/docker.md](docs/docker.md) for complete Docker documentation.
 
 ### Detailed Installation
 
@@ -193,7 +193,7 @@ Customize pin assignments in `config/default_config.json`.
 
 ## Usage
 
-For detailed usage instructions and control methods, see [USAGE.md](USAGE.md).
+For detailed usage instructions and control methods, see [docs/usage.md](docs/usage.md).
 
 ### Starting the System
 
@@ -307,12 +307,18 @@ Wheelchair-Bot/
 │   ├── controller.js           # Control logic
 │   └── styles.css              # Styling
 ├── docs/                        # Documentation
-│   ├── architecture.md         # System architecture
 │   ├── api.md                  # API reference
-│   └── getting-started.md      # Setup guide
+│   ├── architecture.md         # System architecture
+│   ├── docker.md               # Docker setup guide
+│   ├── emulator.md             # Testing framework
+│   ├── getting-started.md      # Setup guide
+│   ├── usage.md                # Usage instructions
+│   └── wheelchair-support.md   # Hardware compatibility
 ├── tests/                       # Test suite - see tests/README.md
 ├── main.py                      # Main entry point
 ├── requirements.txt             # Python dependencies
+├── QUICKSTART.md                # Quick start guide
+├── CONTRIBUTING.md              # Contribution guidelines
 └── README.md                    # This file
 ```
 
@@ -445,7 +451,7 @@ python3 main.py --mock-gpio --mock-camera
 python3 -m wheelchair_bot.services.teleopd --mock
 ```
 
-For the complete emulator testing framework, see [EMULATOR.md](EMULATOR.md).
+For the complete emulator testing framework, see [docs/emulator.md](docs/emulator.md).
 
 ### Code Quality
 
@@ -479,7 +485,7 @@ The modular design makes it easy to extend:
 3. **New Safety Feature**: Add to `wheelchair_bot/safety/`
 4. **New Service**: Create in `wheelchair_bot/services/`
 
-See [docs/contributing.md](docs/contributing.md) for detailed guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Deployment
 

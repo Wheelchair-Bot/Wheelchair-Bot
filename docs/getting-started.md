@@ -126,4 +126,4 @@ Wheelchair-Bot/
 
 - Check out the [API Documentation](./api.md)
 - Read the [Architecture Guide](./architecture.md)
-- Learn about [Contributing](./contributing.md)
+- Learn about [Contributing](../CONTRIBUTING.md)

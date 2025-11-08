@@ -321,4 +321,4 @@ See LICENSE file in repository root.
 
 For issues, questions, or contributions:
 - Open an issue on GitHub
-- See CONTRIBUTING.md for development guidelines
+- See [CONTRIBUTING.md](../CONTRIBUTING.md) for development guidelines

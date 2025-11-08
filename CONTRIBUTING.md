@@ -2,32 +2,45 @@
 
 Thank you for your interest in contributing to Wheelchair-Bot! This project aims to provide a safe and accessible interface for controlling electric wheelchairs.
 
-## Getting Started
+## Code of Conduct
 
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/Wheelchair-Bot.git`
-3. Create a new branch: `git checkout -b feature/your-feature-name`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Install in development mode: `pip install -e .`
+Please be respectful and constructive in all interactions.
 
-## Development
+## How to Contribute
 
-### Running Tests
+### Reporting Bugs
 
-Run the integration tests to ensure everything works:
+If you find a bug, please create an issue with:
+- A clear description of the problem
+- Steps to reproduce
+- Expected vs actual behavior
+- Your environment (OS, Python version, Node version)
 
-```bash
-python tests/test_integration.py
-```
+### Suggesting Features
 
-### Running Examples
+Feature requests are welcome! Please create an issue describing:
+- The problem you're trying to solve
+- Your proposed solution
+- Any alternatives you've considered
 
-Test your changes with the example scripts:
+### Pull Requests
 
-```bash
-python examples/show_models.py
-python examples/simulated_control.py
-```
+1. **Fork the repository** and create a new branch from `main`
+2. **Make your changes** following the coding standards below
+3. **Add tests** for any new functionality
+4. **Ensure all tests pass**
+5. **Update documentation** as needed
+6. **Submit a pull request**
+
+## Development Setup
+
+See [Getting Started Guide](docs/getting-started.md) for detailed setup instructions.
+
+Quick start:
+1. Fork and clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Install in development mode: `pip install -e .`
+4. Run tests: `pytest`
 
 ## Adding a New Wheelchair Model
 
@@ -69,13 +82,66 @@ To add support for a new controller:
 3. Implement all abstract methods: `connect()`, `disconnect()`, `read_input()`, `is_connected()`
 4. Add your controller to the imports in `wheelchair_bot/controllers/__init__.py`
 
-## Code Style
+## Coding Standards
 
-- Follow PEP 8 guidelines
+### Python
+
+- Follow PEP 8 style guide
 - Use type hints where appropriate
-- Add docstrings to all classes and methods
-- Keep functions focused and simple
-- Add comments for complex logic
+- Format code with `black`
+- Lint with `ruff`
+- Write docstrings for all functions and classes
+- Keep functions focused and single-purpose
+- Write tests for new functionality
+
+### JavaScript/React
+
+- Follow ESLint configuration
+- Use functional components and hooks
+- Write clear, descriptive variable names
+- Keep components small and focused
+- Use proper prop types
+
+## Testing
+
+### Backend Tests
+
+```bash
+cd packages/backend
+pytest
+```
+
+### Shared Library Tests
+
+```bash
+cd packages/shared
+pytest
+```
+
+### Integration Tests
+
+```bash
+python tests/test_integration.py
+```
+
+## Commit Messages
+
+Use clear, descriptive commit messages:
+- Use present tense ("Add feature" not "Added feature")
+- Use imperative mood ("Move cursor to..." not "Moves cursor to...")
+- Limit first line to 72 characters
+- Reference issues and pull requests
+
+Example:
+```
+Add movement speed control to API
+
+- Add speed parameter to move endpoint
+- Update tests for speed validation
+- Update documentation
+
+Fixes #123
+```
 
 ## Safety Considerations
 
@@ -87,17 +153,17 @@ This project deals with wheelchair control, which has real-world safety implicat
 - Consider edge cases and failure modes
 - Never remove or weaken existing safety features without discussion
 
-## Pull Request Process
+## Documentation
 
-1. Ensure your code follows the style guidelines
-2. Run all tests and make sure they pass
-3. Update the README if you've added new features
-4. Write clear commit messages
-5. Submit a pull request with a description of your changes
+Update documentation when you:
+- Add new features
+- Change existing functionality
+- Add new dependencies
+- Change configuration
 
 ## Questions?
 
-Feel free to open an issue if you have questions or need help!
+Feel free to create an issue for any questions about contributing.
 
 ## License
 
