@@ -119,8 +119,12 @@ class WebRTCManager {
         this.peerConnection.ontrack = (event) => {
             console.log('Received remote track:', event.track.kind);
             if (event.streams && event.streams[0]) {
-                this.remoteVideo.srcObject = event.streams[0];
-                this.videoOverlay.classList.add('hidden');
+                if (this.remoteVideo) {
+                    this.remoteVideo.srcObject = event.streams[0];
+                }
+                if (this.videoOverlay) {
+                    this.videoOverlay.classList.add('hidden');
+                }
             }
         };
 
@@ -266,12 +270,14 @@ class WebRTCManager {
             this.websocket = null;
         }
 
-        if (this.remoteVideo.srcObject) {
+        if (this.remoteVideo && this.remoteVideo.srcObject) {
             this.remoteVideo.srcObject.getTracks().forEach(track => track.stop());
             this.remoteVideo.srcObject = null;
         }
 
-        this.videoOverlay.classList.remove('hidden');
+        if (this.videoOverlay) {
+            this.videoOverlay.classList.remove('hidden');
+        }
         this.isConnected = false;
         this.isConnecting = false;
         
