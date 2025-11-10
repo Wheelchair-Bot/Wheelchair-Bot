@@ -2,9 +2,12 @@
 Gamepad controller implementation
 """
 
-from wheelchair_bot.controllers.base import Controller
+from wheelchair_bot.controllers.base import Controller, CONTROLLER_FAMILY_SUPPORT
 from typing import Tuple, Optional
 import time
+
+if CONTROLLER_FAMILY_SUPPORT:
+    from wheelchair.controller_families import ControllerFamily, ControllerSignals
 
 
 class GamepadController(Controller):
@@ -12,16 +15,22 @@ class GamepadController(Controller):
     Gamepad controller for wheelchairs (Xbox, PlayStation, etc.).
     
     Uses pygame for gamepad input handling.
+    Supports controller family emulation for realistic wheelchair controller behavior.
     """
     
-    def __init__(self, controller_id: int = 0):
+    def __init__(
+        self,
+        controller_id: int = 0,
+        controller_family: Optional['ControllerFamily'] = None
+    ):
         """
         Initialize gamepad controller.
         
         Args:
             controller_id: ID of the gamepad to use (default: 0)
+            controller_family: Optional controller family for hardware emulation
         """
-        super().__init__(f"Gamepad_{controller_id}")
+        super().__init__(f"Gamepad_{controller_id}", controller_family=controller_family)
         self.controller_id = controller_id
         self._joystick = None
         self._pygame_initialized = False
@@ -102,7 +111,34 @@ class GamepadController(Controller):
             linear = -self._joystick.get_axis(1)
             angular = self._joystick.get_axis(0)
             
-            # Apply deadzone
+            # If controller family is set, process through family
+            if CONTROLLER_FAMILY_SUPPORT and self._controller_family is not None:
+                chars = self._controller_family.get_signal_characteristics()
+                
+                # Convert normalized values to voltage based on family
+                if 'voltage_range' in chars:
+                    if '3.3V' in chars['voltage_range']:
+                        # Shark/DX uses 0-3.3V with 1.65V center
+                        axis_x_voltage = 1.65 + (angular * 1.65)
+                        axis_y_voltage = 1.65 + (linear * 1.65)
+                    else:
+                        # Most use 0-5V with 2.5V center
+                        axis_x_voltage = 2.5 + (angular * 2.5)
+                        axis_y_voltage = 2.5 + (linear * 2.5)
+                else:
+                    # Default to 5V
+                    axis_x_voltage = 2.5 + (angular * 2.5)
+                    axis_y_voltage = 2.5 + (linear * 2.5)
+                
+                signals = ControllerSignals(
+                    axis_x_voltage=axis_x_voltage,
+                    axis_y_voltage=axis_y_voltage,
+                    enable_line=True,  # Gamepad is always enabled when connected
+                )
+                controller_input = self._controller_family.process_signals(signals)
+                return (controller_input.linear, controller_input.angular)
+            
+            # Legacy behavior: apply deadzone directly
             linear = self.apply_deadzone(linear)
             angular = self.apply_deadzone(angular)
             

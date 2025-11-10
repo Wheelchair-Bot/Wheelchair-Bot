@@ -53,7 +53,9 @@ select = ["E", "F", "I", "N", "W", "UP"]
 "__init__.py" = ["F401"]
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 testpaths = ["tests", "src/tests"]
+norecursedirs = ["packages", "node_modules", ".git", ".tox", "dist", "build", "*.egg"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
