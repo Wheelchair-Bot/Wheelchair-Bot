@@ -164,15 +164,14 @@ async def main():
 
     args = parser.parse_args()
 
+    # Create the SimulatorServer with the correct host and port
+    server = SimulatorServer(host=args.host, port=args.port)
+
     demo = SimulatorDemo(
         scenario=args.scenario,
-        auto_open_browser=not args.no_browser
+        auto_open_browser=not args.no_browser,
+        server=server
     )
-
-    # Override server settings if specified
-    if args.host != "localhost" or args.port != 8765:
-        demo.server = SimulatorServer(host=args.host, port=args.port)
-
     print("\n" + "=" * 60)
     print("🦽 Wheelchair Emulator with 3D Simulator GUI")
     print("=" * 60)
