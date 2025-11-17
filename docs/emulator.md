@@ -2,6 +2,17 @@
 
 This document describes the wheelchair emulator layer that enables development and testing without physical hardware.
 
+## 3D Simulator GUI
+
+The emulator now includes a **Three.js based 3D simulator GUI** for real-time visualization! See [docs/simulator.md](simulator.md) for complete documentation.
+
+**Quick Start:**
+```bash
+PYTHONPATH=src python3 examples/simulator_demo.py
+```
+
+This opens a browser with a 3D view showing the wheelchair's position, orientation, and movement in real-time.
+
 ## Architecture
 
 The emulator provides complete simulation of all wheelchair subsystems:

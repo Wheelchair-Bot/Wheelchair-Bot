@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheelchair Bot 3D Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
+        }
+
+        #container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #sidebar {
+            width: 320px;
+            background: rgba(30, 30, 40, 0.95);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4a9eff;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #7db3ff;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.connected {
+            background: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+
+        .status-indicator.disconnected {
+            background: #f44336;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #aaa;
+        }
+
+        .info-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .control-button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            background: #4a9eff;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .control-button:hover {
+            background: #357abd;
+        }
+
+        .control-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .control-button.danger {
+            background: #f44336;
+        }
+
+        .control-button.danger:hover {
+            background: #d32f2f;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #2a2a3a;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .slider-container {
+            margin: 10px 0;
+        }
+
+        .slider-container label {
+            display: block;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .slider-value {
+            font-size: 12px;
+            color: #7db3ff;
+            text-align: right;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .trace-toggle {
+            margin-top: 10px;
+        }
+
+        .trace-toggle label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .trace-toggle input[type="checkbox"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="canvas-container">
+            <div id="loading">
+                <div class="spinner"></div>
+                <p>Loading 3D Simulator...</p>
+            </div>
+        </div>
+        
+        <div id="sidebar">
+            <h1>🦽 Wheelchair Simulator</h1>
+            
+            <div class="section">
+                <h2>Connection</h2>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span>
+                        <span class="status-indicator" id="statusIndicator"></span>
+                        <span id="statusText">Disconnected</span>
+                    </span>
+                </div>
+                <input type="text" id="wsUrl" placeholder="ws://localhost:8765" value="ws://localhost:8765">
+                <button class="control-button" id="connectBtn">Connect to Emulator</button>
+                <button class="control-button danger" id="resetBtn">Reset Position</button>
+            </div>
+
+            <div class="section">
+                <h2>Position</h2>
+                <div class="info-row">
+                    <span class="info-label">X:</span>
+                    <span class="info-value" id="posX">0.00 m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Y:</span>
+                    <span class="info-value" id="posY">0.00 m</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Heading:</span>
+                    <span class="info-value" id="heading">0.0°</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Velocity</h2>
+                <div class="info-row">
+                    <span class="info-label">Linear:</span>
+                    <span class="info-value" id="linearVel">0.00 m/s</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Angular:</span>
+                    <span class="info-value" id="angularVel">0.00 rad/s</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Motors</h2>
+                <div class="info-row">
+                    <span class="info-label">Left:</span>
+                    <span class="info-value" id="leftMotor">0%</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Right:</span>
+                    <span class="info-value" id="rightMotor">0%</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Battery</h2>
+                <div class="info-row">
+                    <span class="info-label">Voltage:</span>
+                    <span class="info-value" id="batteryVoltage">24.0 V</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Charge:</span>
+                    <span class="info-value" id="batteryPercent">100%</span>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>View Options</h2>
+                <div class="slider-container">
+                    <label>Camera Distance</label>
+                    <input type="range" id="cameraDistance" min="5" max="50" value="20" step="1">
+                    <div class="slider-value"><span id="cameraDistanceValue">20</span> m</div>
+                </div>
+                <div class="slider-container">
+                    <label>Camera Height</label>
+                    <input type="range" id="cameraHeight" min="2" max="30" value="10" step="1">
+                    <div class="slider-value"><span id="cameraHeightValue">10</span> m</div>
+                </div>
+                <div class="trace-toggle">
+                    <label>
+                        <input type="checkbox" id="showTrace" checked>
+                        Show Path Trace
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="simulator.js"></script>
+</body>
+</html>
