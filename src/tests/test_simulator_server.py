@@ -1,6 +1,5 @@
 """Tests for the simulator server."""
 
-import pytest
 from wheelchair.simulator_server import create_simulator_callback
 from wheelchair.interfaces import WheelchairState
 
