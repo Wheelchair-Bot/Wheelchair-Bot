@@ -5,7 +5,6 @@ import json
 import logging
 from typing import Set, Optional
 import websockets
-from websockets.server import WebSocketServerProtocol
 from wheelchair.interfaces import WheelchairState
 
 logger = logging.getLogger(__name__)
@@ -24,21 +23,21 @@ class SimulatorServer:
         """
         self.host = host
         self.port = port
-        self.clients: Set[WebSocketServerProtocol] = set()
+        self.clients: Set = set()
         self.server = None
         self._running = False
 
-    async def register(self, websocket: WebSocketServerProtocol):
+    async def register(self, websocket):
         """Register a new client connection."""
         self.clients.add(websocket)
         logger.info(f"Client connected. Total clients: {len(self.clients)}")
 
-    async def unregister(self, websocket: WebSocketServerProtocol):
+    async def unregister(self, websocket):
         """Unregister a client connection."""
         self.clients.discard(websocket)
         logger.info(f"Client disconnected. Total clients: {len(self.clients)}")
 
-    async def handle_client(self, websocket: WebSocketServerProtocol, path: str):
+    async def handle_client(self, websocket, path: str):
         """Handle a client connection."""
         await self.register(websocket)
         try:
