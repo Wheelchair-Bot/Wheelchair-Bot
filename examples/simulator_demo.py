@@ -35,13 +35,14 @@ logger = logging.getLogger(__name__)
 class SimulatorDemo:
     """Demo of wheelchair emulator with 3D simulator GUI."""
 
-    def __init__(self, scenario: str = "default", auto_open_browser: bool = True):
+    def __init__(self, scenario: str = "default", auto_open_browser: bool = True, server: SimulatorServer = None):
         """
         Initialize the demo.
 
         Args:
             scenario: Simulation scenario to use
             auto_open_browser: Whether to automatically open the browser
+            server: Optional SimulatorServer instance. If not provided, creates a default one.
         """
         self.scenario = scenario
         self.auto_open_browser = auto_open_browser
@@ -50,8 +51,8 @@ class SimulatorDemo:
         config = EmulatorConfig()
         self.loop = create_realistic_emulator(config, scenario)
         
-        # Create simulator server
-        self.server = SimulatorServer(host="localhost", port=8765)
+        # Use provided server or create default one
+        self.server = server if server is not None else SimulatorServer(host="localhost", port=8765)
         
         # Add broadcasting callback
         callback = create_simulator_callback(self.server, update_rate=30.0)
