@@ -37,7 +37,7 @@ class SimulatorServer:
         self.clients.discard(websocket)
         logger.info(f"Client disconnected. Total clients: {len(self.clients)}")
 
-    async def handle_client(self, websocket, path: str):
+    async def handle_client(self, websocket: websockets.WebSocketServerProtocol, path: str):
         """Handle a client connection."""
         await self.register(websocket)
         try:
