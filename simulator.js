@@ -203,9 +203,11 @@ class WheelchairSimulator {
     }
 
     createPathTrace() {
+        // Note: The 'linewidth' property has no effect in WebGL for LineBasicMaterial.
+        // If you need variable line width, use THREE.Line2 from three/examples/jsm/lines/Line2.js.
         const material = new THREE.LineBasicMaterial({
             color: 0xffff00,
-            linewidth: 2,
+            linewidth: 2, // No-op in WebGL
             transparent: true,
             opacity: 0.7
         });
