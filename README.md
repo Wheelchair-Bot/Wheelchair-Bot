@@ -460,6 +460,17 @@ python3 -m wheelchair_bot.services.teleopd --mock
 
 For the complete emulator testing framework, see [docs/emulator.md](docs/emulator.md).
 
+### 3D Simulator GUI
+
+The project includes a **Three.js based 3D simulator** for visualizing the wheelchair emulator in real-time:
+
+```bash
+# Start the emulator with 3D visualization
+PYTHONPATH=src python3 examples/simulator_demo.py
+```
+
+This opens a browser with a 3D view showing the wheelchair's position, orientation, and movement. See [docs/simulator.md](docs/simulator.md) for complete details.
+
 ### Code Quality
 
 ```bash
