@@ -1,5 +1,8 @@
 # 🦽 Wheelchair-Bot 🦽 Universal Tele-Robotics Kit
 
+<img width="1390" height="1164" alt="wheelchair-bot-logo copy" src="https://github.com/user-attachments/assets/897512b5-75d5-4dad-8955-0442d5ffd9d3" />
+
+
 A lightweight, universal tele-robotics kit that turns almost any powered wheelchair into a remotely driven robot using commodity parts, an Android phone and/or a Raspberry Pi, and a camera—all accessed through a secure web interface.
 
 
@@ -107,6 +110,9 @@ The system consists of five core services that work together. For a detailed arc
 - External speakers for audio feedback
 
 For detailed wheelchair model compatibility and controller interface information, see [docs/wheelchair-support.md](docs/wheelchair-support.md).
+
+
+![wheelchair-bot-pano](https://github.com/user-attachments/assets/ad9290f7-c03f-4a9f-8108-340539a1fc2b)
 
 ## Installation
 
