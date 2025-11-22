@@ -1,4 +1,4 @@
-# Wheelchair-Bot - Universal Tele-Robotics Kit
+# 🦽 Wheelchair-Bot 🦽 Universal Tele-Robotics Kit
 
 A lightweight, universal tele-robotics kit that turns almost any powered wheelchair into a remotely driven robot using commodity parts, an Android phone and/or a Raspberry Pi, and a camera—all accessed through a secure web interface.
 
