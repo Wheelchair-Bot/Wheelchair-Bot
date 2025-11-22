@@ -1,4 +1,4 @@
-# [🦽Wheelchair-Bot🦽 Universal Navigation + 🦾 Tele-Robotics 🤖 Kit](https://wheelchair-bot.github.io/)
+# [🦽Wheelchair-Bot🦽 Universal Navigation + 🦾Tele-Robotics🤖 Kit](https://wheelchair-bot.github.io/)
 
 <img width="1390" height="1164" alt="wheelchair-bot-logo copy" src="https://github.com/user-attachments/assets/897512b5-75d5-4dad-8955-0442d5ffd9d3" />
 
