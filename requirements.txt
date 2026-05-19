@@ -3,8 +3,10 @@
 # Uncomment the following line when running on Raspberry Pi:
 RPi.GPIO>=0.7.1
 
-# Optional: For enhanced keyboard control
-keyboard>=0.13.5
+# `keyboard>=0.13.5` removed in audit gap G-22:
+#  - requires root + TTY (broken in containers, CI, headless boots)
+#  - real-time input belongs on the client side, not the Pi
+#  - `wheelchair_controller.keyboard_control` now uses line-buffered input()
 
 # Development dependencies (optional)
 pytest>=7.4.0

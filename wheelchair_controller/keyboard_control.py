@@ -1,141 +1,99 @@
-"""Keyboard control interface for wheelchair controller."""
+"""Keyboard control for the legacy main.py entry point.
+
+Closes audit gap G-22 by removing the `keyboard` Python library
+dependency. The previous implementation tried to import `keyboard` for
+"real-time" key detection — which only works as root, only with a TTY,
+and refuses to load in Docker. Both failure modes hit production users.
+
+The right place for real-time low-latency input is the **client**
+(Android joystick or web UI), not the Pi reading its own attached
+keyboard. The Pi exposes the WebSocket control endpoint
+(`wheelchair.app.server` from Phase 2) and the client sends frames.
+
+This module is kept only for the legacy `python main.py` command:
+line-buffered ``input()``-based control. It's intentionally simple
+and intentionally not real-time; if you need real-time, use the
+tele-op WS client.
+"""
+
+from __future__ import annotations
 
 import logging
 import sys
-import time
-from typing import Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 class KeyboardControl:
-    """Keyboard control interface for wheelchair."""
-    
-    def __init__(self, controller):
-        """
-        Initialize keyboard control.
-        
-        Args:
-            controller: WheelchairController instance
-        """
+    """Line-buffered keyboard control. No external lib, no root."""
+
+    def __init__(self, controller: Any) -> None:
         self.controller = controller
         self.running = False
-    
-    def print_instructions(self):
-        """Print control instructions."""
-        print("\n" + "="*50)
-        print("Wheelchair Controller - Keyboard Control")
-        print("="*50)
-        print("Controls:")
-        print("  W/w - Move Forward")
-        print("  S/s - Move Backward")
-        print("  A/a - Turn Left")
-        print("  D/d - Turn Right")
-        print("  Space - Stop")
-        print("  Q/q - Quit")
-        print("="*50 + "\n")
-    
-    def run(self):
-        """Run keyboard control loop."""
+
+    def print_instructions(self) -> None:
+        print(
+            "\n"
+            + "=" * 50
+            + "\n"
+            "Wheelchair Controller — line-buffered keyboard input\n"
+            + "=" * 50
+            + "\n"
+            "Type a letter and press <Enter>:\n"
+            "  w — forward       a — left\n"
+            "  s — backward      d — right\n"
+            "  (blank) — stop    q — quit\n"
+            "\n"
+            "For real-time control use the WS tele-op client (web/Android),\n"
+            "not this loop.\n"
+            + "=" * 50
+            + "\n",
+            flush=True,
+        )
+
+    def run(self) -> None:
         self.print_instructions()
         self.running = True
-        
-        try:
-            # Try to use keyboard library if available
-            import keyboard
-            self._run_with_keyboard_lib()
-        except ImportError:
-            logger.info("keyboard library not available, using basic input mode")
-            self._run_with_input()
-    
-    def _run_with_input(self):
-        """Run control using basic input (works without keyboard library)."""
-        print("Enter command (w/s/a/d/space/q): ")
-        
-        while self.running:
-            try:
-                command = input("> ").lower().strip()
-                
-                if command == 'w':
-                    print("Moving forward...")
-                    self.controller.move_forward()
-                elif command == 's':
-                    print("Moving backward...")
-                    self.controller.move_backward()
-                elif command == 'a':
-                    print("Turning left...")
-                    self.controller.turn_left()
-                elif command == 'd':
-                    print("Turning right...")
-                    self.controller.turn_right()
-                elif command == ' ' or command == '':
-                    print("Stopping...")
-                    self.controller.stop()
-                elif command == 'q':
-                    print("Quitting...")
-                    self.running = False
-                else:
-                    print(f"Unknown command: {command}")
-                    
-            except KeyboardInterrupt:
-                print("\nKeyboard interrupt received")
-                self.running = False
-            except EOFError:
-                self.running = False
-    
-    def _run_with_keyboard_lib(self):
-        """Run control using keyboard library (real-time key detection)."""
-        import keyboard
-        
-        print("Real-time keyboard control active. Press Q to quit.")
-        print("Hold keys for continuous movement.\n")
-        
-        last_key = None
-        
         try:
             while self.running:
-                if keyboard.is_pressed('q'):
-                    print("Quitting...")
-                    self.running = False
+                command = self._read_command()
+                if command is None:
                     break
-                elif keyboard.is_pressed('w'):
-                    if last_key != 'w':
-                        print("Moving forward...")
-                        self.controller.move_forward()
-                        last_key = 'w'
-                elif keyboard.is_pressed('s'):
-                    if last_key != 's':
-                        print("Moving backward...")
-                        self.controller.move_backward()
-                        last_key = 's'
-                elif keyboard.is_pressed('a'):
-                    if last_key != 'a':
-                        print("Turning left...")
-                        self.controller.turn_left()
-                        last_key = 'a'
-                elif keyboard.is_pressed('d'):
-                    if last_key != 'd':
-                        print("Turning right...")
-                        self.controller.turn_right()
-                        last_key = 'd'
-                elif keyboard.is_pressed('space'):
-                    if last_key != 'space':
-                        print("Stopping...")
-                        self.controller.stop()
-                        last_key = 'space'
-                else:
-                    if last_key is not None:
-                        self.controller.stop()
-                        last_key = None
-                
-                time.sleep(0.05)  # Small delay to prevent CPU spinning
-                
-        except KeyboardInterrupt:
-            print("\nKeyboard interrupt received")
-        
-        self.controller.stop()
-    
-    def cleanup(self):
-        """Cleanup resources."""
+                self._dispatch(command)
+        finally:
+            self.controller.stop()
+
+    def _read_command(self) -> str | None:
+        try:
+            line = input("> ")
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return None
+        return line.lower().strip()
+
+    def _dispatch(self, command: str) -> None:
+        if command in ("w", "forward"):
+            print("forward")
+            self.controller.move_forward()
+        elif command in ("s", "backward", "back"):
+            print("backward")
+            self.controller.move_backward()
+        elif command in ("a", "left"):
+            print("left")
+            self.controller.turn_left()
+        elif command in ("d", "right"):
+            print("right")
+            self.controller.turn_right()
+        elif command in ("", " ", "stop"):
+            print("stop")
+            self.controller.stop()
+        elif command in ("q", "quit", "exit"):
+            print("quit")
+            self.running = False
+        else:
+            print(f"unknown: {command!r} (try: w/s/a/d/<blank>/q)", file=sys.stderr)
+
+    def cleanup(self) -> None:
         self.running = False
         self.controller.stop()
