@@ -44,6 +44,18 @@ class L298NDrive(WheelchairDrive):
         self._left = 0.0
         self._right = 0.0
 
+    @property
+    def motor_driver(self):
+        """Legacy ``MotorDriver`` instance.
+
+        Exposed so callers still using the legacy ``WheelchairController``
+        API (e.g. main.py before its Phase-0 cleanup) can construct it
+        from the canonical ``L298NDrive`` instead of importing
+        ``MotorDriver`` directly. New code should drive through
+        ``set_motor_speeds`` instead.
+        """
+        return self._md
+
     def set_motor_speeds(self, left: float, right: float) -> None:
         self._left = max(-1.0, min(1.0, left))
         self._right = max(-1.0, min(1.0, right))
