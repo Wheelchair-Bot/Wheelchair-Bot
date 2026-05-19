@@ -10,6 +10,7 @@ GPIO-level deadman wiring — are tracked in issues #20, #21, #22.
 from .current_limit import MotorCurrent, OvercurrentMonitor
 from .deadman import DeadmanSwitch
 from .estop import EmergencyStop, EStopEvent, EStopReason
+from .loop import SafetyLoop, SafetyState
 from .lvc import LowVoltageCutoff, LVCState
 from .tilt import TiltMonitor
 from .watchdog import CommandWatchdog, WatchdogExpired
@@ -26,4 +27,6 @@ __all__ = [
     "EmergencyStop",
     "EStopReason",
     "EStopEvent",
+    "SafetyLoop",
+    "SafetyState",
 ]
