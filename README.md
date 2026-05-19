@@ -1,5 +1,35 @@
 # [🦽Wheelchair-Bot🦽 Navigation + 🦾Tele-Robotics🤖 Kit](https://wheelchair-bot.github.io/)
 
+> ## ⚠️ Project status (May 2026): pre-alpha, **not safe to operate on a real wheelchair**
+>
+> A May 2026 architecture audit identified 26 deficiencies including
+> missing command watchdog enforcement, no hardware e-stop relay, no motor
+> current limiting, software-only deadman with a race window, and no
+> end-to-end control path from the Android app to motors.
+>
+> An 18-month phased roadmap is in flight as a stack of pull requests:
+>
+> | Phase | What it lands | PR |
+> |-------|---------------|----|
+> | 0 — Stabilise | honest CI, lockfiles, `CommandWatchdog` | [#46](https://github.com/Wheelchair-Bot/Wheelchair-Bot/pull/46) |
+> | 1 — Safety MVP | deadman / tilt / LVC / current / e-stop | [#47](https://github.com/Wheelchair-Bot/Wheelchair-Bot/pull/47) |
+> | 2 — Tele-op MVP | FastAPI `/ws/control` + bearer auth | [#48](https://github.com/Wheelchair-Bot/Wheelchair-Bot/pull/48) |
+> | 3 — Tier-1 adapters | R-Net / Shark / VR2 codec scaffolding | [#49](https://github.com/Wheelchair-Bot/Wheelchair-Bot/pull/49) |
+> | 4 — comma.ai integration | comma three / 3X + panda CAN bridge | [#50](https://github.com/Wheelchair-Bot/Wheelchair-Bot/pull/50) |
+> | 5 — Beta + Regulatory | IEC 60601 / ISO 7176-14 / FDA Q-Sub templates | [#51](https://github.com/Wheelchair-Bot/Wheelchair-Bot/pull/51) |
+>
+> **Read first:**
+> - [docs/AUDIT_architecture.md](docs/AUDIT_architecture.md) — system architecture audit
+> - [docs/AUDIT_planning.md](docs/AUDIT_planning.md) — gap register + 18-month roadmap + comma.ai integration plan
+> - [docs/PACKAGE_LAYOUT.md](docs/PACKAGE_LAYOUT.md) — canonical vs. legacy packages
+> - [Tracking issue #45](https://github.com/Wheelchair-Bot/Wheelchair-Bot/issues/45) — phase-by-phase status
+>
+> The text below the divider is the original aspirational README. It is
+> being rewritten as each phase lands. Until then, treat it as **vision**,
+> not "as-built" documentation.
+
+---
+
 <img width="1390" height="1164" alt="wheelchair-bot-logo copy" src="https://github.com/user-attachments/assets/897512b5-75d5-4dad-8955-0442d5ffd9d3" />
 
 
