@@ -34,7 +34,8 @@ setup(
     ],
     extras_require={
         "rpi": ["RPi.GPIO>=0.7.1"],
-        "keyboard": ["keyboard>=0.13.5"],
+        # `keyboard` extra removed in audit gap G-22 — see
+        # wheelchair_controller/keyboard_control.py for the rationale.
         "dev": [
             "pytest>=7.4.0",
             "pytest-cov>=4.1.0",
