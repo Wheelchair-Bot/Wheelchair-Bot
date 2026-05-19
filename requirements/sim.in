@@ -1,0 +1,2 @@
+# Simulator / CI / dev-laptop target (no GPIO).
+-r base.in

@@ -25,10 +25,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
+      # Use the pinned dev.lock so CI installs match local dev exactly
+      # (audit gap G-19). Edit requirements/dev.in + run scripts/lock_deps.sh
+      # to update.
       run: |
         python -m pip install --upgrade pip
-        pip install pytest pytest-cov hypothesis pydantic pyyaml
-        pip install black ruff mypy
+        pip install -r requirements/dev.lock
 
     # NOTE: lint/format failures fail the build (audit Phase 0, gap G-16).
     # If this breaks first runs, fix the code or temporarily narrow the paths,
