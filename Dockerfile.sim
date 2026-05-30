@@ -1,0 +1,75 @@
+# Wheelchair-Bot — simulator / dev / CI image (no GPIO).
+#
+# Closes the "sim" half of audit gap G-21.
+# Builds the same multi-stage layout the old Dockerfile had, but
+# explicitly does NOT include RPi.GPIO or any GPIO-touching code.
+# Use this image for emulator runs, CI, and local dev on a non-Pi box.
+#
+# For the Pi production image (with GPIO + camera), see Dockerfile.pi.
+
+FROM python:3.11-slim-bookworm AS base
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    libffi-dev \
+    libssl-dev \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash -u 1000 developer && \
+    mkdir -p /workspace && \
+    chown -R developer:developer /workspace
+USER developer
+WORKDIR /workspace
+ENV PATH="/home/developer/.local/bin:${PATH}"
+
+# ---- development stage ----
+FROM base AS development
+
+COPY --chown=developer:developer requirements/ requirements/
+COPY --chown=developer:developer pyproject.toml ./
+RUN pip install --user --no-cache-dir -r requirements/dev.lock
+
+COPY --chown=developer:developer . .
+RUN pip install --user --no-cache-dir -e .
+
+CMD ["/bin/bash"]
+
+# ---- testing stage ----
+FROM development AS testing
+
+# Same content as dev; different default command.
+CMD ["pytest", "src/tests/", "tests/", "-v", \
+     "--cov=wheelchair_bot", "--cov=wheelchair_controller", \
+     "--cov=src/wheelchair", "--cov-report=term-missing"]
+
+# ---- production-sim stage ----
+# This is the "sim" production image — no hardware, suitable for
+# running the emulator + tele-op server in a cloud container for
+# demos and end-to-end tests. NOT suitable for driving a real chair.
+FROM base AS production-sim
+
+COPY --chown=developer:developer requirements/ requirements/
+RUN pip install --user --no-cache-dir -r requirements/sim.lock
+
+COPY --chown=developer:developer wheelchair_bot wheelchair_bot/
+COPY --chown=developer:developer wheelchair_controller wheelchair_controller/
+COPY --chown=developer:developer src src/
+COPY --chown=developer:developer main.py demo.py README.md ./
+COPY --chown=developer:developer config config/
+COPY --chown=developer:developer pyproject.toml setup.py ./
+
+RUN pip install --user --no-cache-dir .
+
+EXPOSE 8000 8080
+
+# --mock is the only sensible default for a no-GPIO image; the
+# wrapper refuses to load RPi.GPIO unless the flag is dropped.
+CMD ["python", "main.py", "--mock", "--verbose"]
