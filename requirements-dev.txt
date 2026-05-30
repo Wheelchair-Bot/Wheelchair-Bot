@@ -1,21 +1,2 @@
-# Development dependencies for wheelchair emulator
-
-# Core emulator dependencies
-pydantic>=2.0
-pyyaml>=6.0
-
-# Testing
-pytest>=7.0
-pytest-cov>=4.0
-hypothesis>=6.0
-
-# Code quality
-black>=23.0
-ruff>=0.1.0
-mypy>=1.0
-
-# Optional dependencies from existing requirements.txt
-pytest>=7.4.0
-pytest-cov>=4.1.0
-pylint>=3.0.0
-black>=23.0.0
+# DEPRECATED — use requirements/dev.in directly. See requirements/README.md.
+-r requirements/dev.in
