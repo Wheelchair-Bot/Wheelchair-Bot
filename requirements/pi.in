@@ -1,0 +1,7 @@
+# Raspberry Pi production target.
+# Adds GPIO + camera + system-level deps.
+# pip-compile this on a Pi or in a Pi-arch container; the lock file is
+# platform-specific.
+-r base.in
+RPi.GPIO>=0.7.1
+lgpio>=0.2.0

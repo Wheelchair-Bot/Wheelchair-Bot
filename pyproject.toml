@@ -62,6 +62,11 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "-v --cov=wheelchair_bot --cov=wheelchair_controller --cov=src/wheelchair --cov-report=term-missing"
+markers = [
+    "safety: safety-critical test, MUST pass on every commit (audit Phase 0+)",
+    "hil: requires hardware-in-the-loop bench rig",
+    "slow: long-running test",
+]
 
 [tool.mypy]
 python_version = "3.9"

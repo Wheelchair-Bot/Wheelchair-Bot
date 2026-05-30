@@ -1,0 +1,79 @@
+# Wheelchair-Bot — Raspberry Pi production image (with GPIO).
+#
+# Closes the "pi" half of audit gap G-21.
+# Targets linux/arm64; uses the bookworm Pi base image so RPi.GPIO and
+# lgpio resolve to working wheels.
+#
+# Build with buildx so you can produce arm64 images from any host:
+#
+#   docker buildx build --platform linux/arm64 \
+#     -f Dockerfile.pi -t wheelchair-bot:pi --load .
+#
+# NOTE: requirements/pi.lock must be regenerated on linux/arm64; see
+# requirements/README.md. The build will fail loudly if the lock and
+# wheel cache don't match the target arch.
+
+FROM python:3.11-slim-bookworm AS base
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Pi-specific system deps: libcamera tools, GStreamer for the eventual
+# video path (Phase 2 follow-up), I²C / SPI userspace libs for INA226
+# (Phase 1 hardware), GPIO via lgpio (preferred over RPi.GPIO long-term).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    libffi-dev \
+    libssl-dev \
+    python3-dev \
+    i2c-tools \
+    libgpiod2 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Run as the standard `pi` user so /dev/gpiomem and /dev/i2c-1
+# permissions match a real Pi install (the runtime container must
+# mount /dev/gpiomem + /dev/i2c-1 from the host).
+RUN useradd -m -s /bin/bash -u 1000 pi && \
+    usermod -aG dialout,plugdev pi && \
+    mkdir -p /workspace && \
+    chown -R pi:pi /workspace
+USER pi
+WORKDIR /workspace
+ENV PATH="/home/pi/.local/bin:${PATH}"
+
+# ---- production stage ----
+FROM base AS production
+
+# pi.lock is generated on linux/arm64 (see requirements/README.md). The
+# build deliberately fails if it's missing rather than silently falling
+# back to sim.lock.
+COPY --chown=pi:pi requirements/ requirements/
+RUN test -f requirements/pi.lock || { \
+        echo "ERROR: requirements/pi.lock is missing." >&2; \
+        echo "Generate it with the buildx incantation in requirements/README.md." >&2; \
+        exit 1; \
+    } && pip install --user --no-cache-dir -r requirements/pi.lock
+
+COPY --chown=pi:pi wheelchair_bot wheelchair_bot/
+COPY --chown=pi:pi wheelchair_controller wheelchair_controller/
+COPY --chown=pi:pi src src/
+COPY --chown=pi:pi main.py demo.py README.md ./
+COPY --chown=pi:pi config config/
+COPY --chown=pi:pi pyproject.toml setup.py ./
+
+RUN pip install --user --no-cache-dir .
+
+EXPOSE 8000 8080
+
+# No --mock: this image is meant for real hardware. The runtime
+# container MUST be started with the GPIO devices mounted:
+#
+#   docker run --rm \
+#     --device /dev/gpiomem --device /dev/i2c-1 \
+#     -p 8000:8000 -p 8080:8080 \
+#     wheelchair-bot:pi
+CMD ["python", "main.py", "--verbose"]

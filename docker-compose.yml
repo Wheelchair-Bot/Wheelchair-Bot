@@ -1,14 +1,22 @@
+# Wheelchair-Bot — local dev / test / sim containers.
+#
+# For the Pi production image, see Dockerfile.pi (built with `docker
+# buildx build --platform linux/arm64 -f Dockerfile.pi`).
+#
+# All services use Dockerfile.sim by design — running the Pi image
+# locally on a non-Pi host would silently fail to find /dev/gpiomem.
+
 services:
-  # Development service - for interactive development
+
+  # Interactive development shell.
   dev:
     build:
       context: .
+      dockerfile: Dockerfile.sim
       target: development
-      dockerfile: Dockerfile
-    image: wheelchair-bot:dev
+    image: wheelchair-bot:sim-dev
     container_name: wheelchair-bot-dev
     volumes:
-      # Mount source code for live editing
       - ./wheelchair_bot:/workspace/wheelchair_bot
       - ./wheelchair_controller:/workspace/wheelchair_controller
       - ./src:/workspace/src
@@ -17,63 +25,53 @@ services:
       - ./config:/workspace/config
       - ./main.py:/workspace/main.py
       - ./demo.py:/workspace/demo.py
-      # Preserve pip cache and installed packages
       - pip-cache:/home/developer/.cache/pip
     ports:
-      # API port
       - "8000:8000"
-      # Web interface port
       - "8080:8080"
     environment:
-      # Development environment variables
-      - PYTHONPATH=/workspace
+      - PYTHONPATH=/workspace:/workspace/src
       - MOCK_GPIO=1
       - DEVELOPMENT=1
     stdin_open: true
     tty: true
     command: /bin/bash
-    networks:
-      - wheelchair-net
+    networks: [wheelchair-net]
 
-  # Testing service - for running tests
+  # CI / local test runner.
   test:
     build:
       context: .
+      dockerfile: Dockerfile.sim
       target: testing
-      dockerfile: Dockerfile
-    image: wheelchair-bot:test
+    image: wheelchair-bot:sim-test
     container_name: wheelchair-bot-test
     volumes:
-      # Mount source code
       - ./wheelchair_bot:/workspace/wheelchair_bot
       - ./wheelchair_controller:/workspace/wheelchair_controller
       - ./src:/workspace/src
       - ./tests:/workspace/tests
-      # Mount for coverage reports (directory only, not the file)
       - ./htmlcov:/workspace/htmlcov
     environment:
-      - PYTHONPATH=/workspace
-    networks:
-      - wheelchair-net
+      - PYTHONPATH=/workspace:/workspace/src
+    networks: [wheelchair-net]
 
-  # Application service - for running the app in mock mode
-  app:
+  # No-hardware emulator + tele-op server. NOT for driving real chairs.
+  sim:
     build:
       context: .
-      target: production
-      dockerfile: Dockerfile
-    image: wheelchair-bot:app
-    container_name: wheelchair-bot-app
+      dockerfile: Dockerfile.sim
+      target: production-sim
+    image: wheelchair-bot:sim
+    container_name: wheelchair-bot-sim
     ports:
       - "8000:8000"
       - "8080:8080"
     environment:
-      - PYTHONPATH=/workspace
-      - MOCK_GPIO=1
+      - PYTHONPATH=/workspace:/workspace/src
     stdin_open: true
     tty: true
-    networks:
-      - wheelchair-net
+    networks: [wheelchair-net]
     restart: unless-stopped
 
 networks:

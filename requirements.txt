@@ -1,14 +1,4 @@
-
-# Raspberry Pi GPIO library (only needed on actual Raspberry Pi hardware)
-# Uncomment the following line when running on Raspberry Pi:
-RPi.GPIO>=0.7.1
-
-# Optional: For enhanced keyboard control
-keyboard>=0.13.5
-
-# Development dependencies (optional)
-pytest>=7.4.0
-pytest-cov>=4.1.0
-pylint>=3.0.0
-black>=23.0.0
-pygame>=2.0.0
+# DEPRECATED — use requirements/sim.in or requirements/pi.in directly.
+# See requirements/README.md.
+# Kept for backwards compatibility with existing `pip install -r requirements.txt` callers.
+-r requirements/sim.in
